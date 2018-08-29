@@ -57,8 +57,8 @@ public static void  parseData(){
 				
 				//TODOo calculate the ranking for buy and sell
 				//need t 
-				if(data[3].equalsIgnoreCase("AED")
-					|| data[3].equalsIgnoreCase("SAR") ){
+				if(dataEntity.getCurrency().equalsIgnoreCase("AED")
+					|| dataEntity.getCurrency().equalsIgnoreCase("SAR") ){
 					
 					Calendar calendar = Calendar.getInstance();
 					calendar.setFirstDayOfWeek(Calendar.SUNDAY);
@@ -69,8 +69,6 @@ public static void  parseData(){
 						settleDate.clear();						
 						settleDate.setTime(now);
 						
-						System.out.println(" >>>>>> if" );
-						
 						if(settleDate.get(Calendar.DAY_OF_WEEK) == 6){
 							settleDate.add(Calendar.DAY_OF_WEEK, 2);
 						}else if(settleDate.get(Calendar.DAY_OF_WEEK) == 7){
@@ -78,37 +76,17 @@ public static void  parseData(){
 						}
 						
 						CalculateAmount(dataEntity, settleDate);
-						
-						/*Date currentDate = new Date();
-						Date settlementedDate = settleDate.getTime();
-						System.out.println(currentDate);
-						System.out.println(settlementedDate);
-						
-						
-						
-						System.out.println("date compare " + settlementedDate.compareTo(currentDate));
-						if(currentDate.compareTo(settlementedDate) ==0){
-							OutgoingTradeAmount = OutgoingTradeAmount + 
-							(Float.parseFloat(dataEntity.getPrice())*Float.parseFloat(dataEntity.getUnits())*Float.parseFloat(dataEntity.getAgreedFx()) );
-						}else{
-							incomingTradeAmount = incomingTradeAmount +
-							( Float.parseFloat(dataEntity.getPrice())*Float.parseFloat(dataEntity.getUnits())*Float.parseFloat(dataEntity.getAgreedFx()) ) ;
-						}
-						*/
-						
-						
-						System.out.println(" OutgoingTradeAmount " + OutgoingTradeAmount);
-						System.out.println(" incomingTradeAmount " + incomingTradeAmount);
-						
 					}
 					
 				}else{
 					Calendar calendar = Calendar.getInstance();
 					calendar.setFirstDayOfWeek(Calendar.MONDAY);
 					if(calendar.get(Calendar.DAY_OF_WEEK) <=5){
+											
 						Date now = new Date(dataEntity.getSettlementDate());
 						Calendar settlementDate = Calendar.getInstance();
 						settlementDate.setTime(now);
+						
 						
 						if(settlementDate.get(Calendar.DAY_OF_WEEK) == 7){
 							settlementDate.add(Calendar.DAY_OF_WEEK, 2);
@@ -117,21 +95,8 @@ public static void  parseData(){
 						}
 						
 						CalculateAmount(dataEntity, settlementDate);
-						
-						
-						System.out.println(" OutgoingTradeAmount " + OutgoingTradeAmount);
-						System.out.println(" incomingTradeAmount " + incomingTradeAmount);
-						
 					}
-				}
-				
-				/*if(calendar.get(Calendar.DAY_OF_WEEK)== 7  ||
-				calendar.get(Calendar.DAY_OF_WEEK) == 0 ){
-					
-					//data[5] = calendar.add(Calendar.DATE, 1); 
-					
-				}*/
-				
+				}			
             }
 
         } catch (FileNotFoundException e) {
@@ -153,18 +118,33 @@ public static void  parseData(){
 private static void CalculateAmount(DataEntity dataEntity,
 		Calendar settlementDate) {
 	Date currentDate = new Date();
+	currentDate = getZeroTimeDate(currentDate);
+	
 	Date settlementedDate = settlementDate.getTime();
 	
 	System.out.println(currentDate);
 	System.out.println(settlementedDate);
 	
-	if(currentDate.equals(settlementedDate)){
+	if(currentDate.compareTo(settlementedDate) == 0 ){
+		System.out.println("date equals");
 		OutgoingTradeAmount = OutgoingTradeAmount + 
 		(Float.parseFloat(dataEntity.getPrice())*Float.parseFloat(dataEntity.getUnits())*Float.parseFloat(dataEntity.getAgreedFx()) );
 	}else{
+		System.out.println("date not equals");
 		incomingTradeAmount = incomingTradeAmount +
 		( Float.parseFloat(dataEntity.getPrice())*Float.parseFloat(dataEntity.getUnits())*Float.parseFloat(dataEntity.getAgreedFx()) ) ;
 	}
+}
+
+private static Date getZeroTimeDate(Date date) {
+	Calendar calendar = Calendar.getInstance();
+	calendar.setTime(date);
+	calendar.set(Calendar.HOUR_OF_DAY, 0);
+	calendar.set(Calendar.MINUTE, 0);
+	calendar.set(Calendar.SECOND, 0);
+	calendar.set(Calendar.MILLISECOND, 0);
+	date = calendar.getTime();
+	return date;
 }
 
 
