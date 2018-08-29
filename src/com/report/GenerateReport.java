@@ -12,6 +12,7 @@ public class GenerateReport {
 
 	static float incomingTradeAmount = 0 ;
 	static float OutgoingTradeAmount = 0;
+	static Map<String, Float> map = new HashMap<String, Float>();
 	
 	/**
 	 * @param args
@@ -95,6 +96,8 @@ public static void  parseData(){
 						}
 						
 						CalculateAmount(dataEntity, settlementDate);
+						
+						
 					}
 				}			
             }
@@ -121,19 +124,26 @@ private static void CalculateAmount(DataEntity dataEntity,
 	currentDate = getZeroTimeDate(currentDate);
 	
 	Date settlementedDate = settlementDate.getTime();
-	
-	System.out.println(currentDate);
-	System.out.println(settlementedDate);
-	
-	if(currentDate.compareTo(settlementedDate) == 0 ){
-		System.out.println("date equals");
+		
+	if(currentDate.compareTo(settlementedDate) == 0 ){		
 		OutgoingTradeAmount = OutgoingTradeAmount + 
 		(Float.parseFloat(dataEntity.getPrice())*Float.parseFloat(dataEntity.getUnits())*Float.parseFloat(dataEntity.getAgreedFx()) );
+		if(dataEntity.getBuyOrSell().equalsIgnoreCase("B")){
+			if(map.get(dataEntity.getEntity()) != null){
+					float amount = map.get(dataEntity.getEntity());
+					amount = amount + (Float.parseFloat(dataEntity.getPrice())*Float.parseFloat(dataEntity.getUnits())*Float.parseFloat(dataEntity.getAgreedFx()) );
+					
+					map.put(dataEntity.getEntity(), amount);
+			}else{
+				map.put(dataEntity.getEntity(), OutgoingTradeAmount);
+			}
+		}
 	}else{
-		System.out.println("date not equals");
 		incomingTradeAmount = incomingTradeAmount +
 		( Float.parseFloat(dataEntity.getPrice())*Float.parseFloat(dataEntity.getUnits())*Float.parseFloat(dataEntity.getAgreedFx()) ) ;
 	}
+	
+	sortMap();
 }
 
 private static Date getZeroTimeDate(Date date) {
@@ -147,5 +157,14 @@ private static Date getZeroTimeDate(Date date) {
 	return date;
 }
 
+private static void sortMap(){
+	
+	
+	Map<String, Float> newMap = new TreeMap(Collections.reverseOrder());
+	newMap.putAll(map);
+	System.out.println(map);
+	System.out.println("Total incoming amount" + incomingTradeAmount);
+	System.out.println("Total outgoing amount" + OutgoingTradeAmount);
 
+}
 }
